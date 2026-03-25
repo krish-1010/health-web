@@ -2,12 +2,19 @@ import { NextResponse, NextRequest } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Habit from "@/models/Habit";
 
+// 1. Define the context type where params is a Promise
+type RouteContext = {
+  params: Promise<{ date: string }>;
+};
+
 export async function GET(
   request: NextRequest,
-  context: { params: { date: string } },
+  context: RouteContext, // Use the updated type
 ) {
   await dbConnect();
-  const date = context.params.date;
+
+  // 2. Await the params before accessing the date
+  const { date } = await context.params;
 
   try {
     let habit = await Habit.findOne({ date });
@@ -22,10 +29,12 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  context: { params: { date: string } },
+  context: RouteContext, // Use the updated type
 ) {
   await dbConnect();
-  const date = context.params.date;
+
+  // 3. Await the params here as well
+  const { date } = await context.params;
   const body = await request.json();
 
   try {
